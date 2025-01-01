@@ -1,352 +1,494 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
-
-const COLORS = {
-  abhisarika: '#FF8042',
-  vasakasajja: '#0088FE',
-  virahotkanthita: '#00C49F',
-  swadhinapatika: '#FFBB28',
-  kalahantarita: '#FF6B6B',
-  khandita: '#4ECDC4',
-  vipralabdha: '#45B7D1',
-  proshitapatika: '#96CEB4'
-};
-
-const quizData = {
- questions: [
-    {
-      text: "Your crush hasn't replied to your text in hours. What's your next move?",
-      options: [
-        { text: "Accidentally bump into them at their usual cafe", type: "abhisarika" },
-        { text: "Post aesthetic Instagram stories while waiting", type: "vasakasajja" },
-        { text: "Keep checking their online status every few minutes", type: "virahotkanthita" },
-        { text: "Continue with your day, they will reply when ready", type: "swadhinapatika" },
-        { text: "Leave them on read but watch all their stories", type: "kalahantarita" },
-        { text: "Share screenshots with friends group chat for advice", type: "khandita" },
-        { text: "Type and delete multiple messages without sending", type: "vipralabdha" },
-        { text: "Accept they are busy and focus on work", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "When you really like someone, how do you usually show it?",
-      options: [
-        { text: "Send that perfectly timed witty DM", type: "abhisarika" },
-        { text: "Curate your social media to catch their attention", type: "vasakasajja" },
-        { text: "Create a private Instagram close friends story just for them", type: "virahotkanthita" },
-        { text: "Keep it casual while dropping subtle hints", type: "swadhinapatika" },
-        { text: "Switch between intense attention and complete silence", type: "kalahantarita" },
-        { text: "Watch their activity from a distance", type: "khandita" },
-        { text: "React to their stories but prepare for no response", type: "vipralabdha" },
-        { text: "Maintain minimal but meaningful online presence", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "During a relationship rough patch, what's your typical response?",
-      options: [
-        { text: "Book a surprise dinner reservation to talk", type: "abhisarika" },
-        { text: "Set up the perfect Netflix and talk evening", type: "vasakasajja" },
-        { text: "Make an emotional Spotify playlist on repeat", type: "virahotkanthita" },
-        { text: "Give space while staying visible on social media", type: "swadhinapatika" },
-        { text: "Post indirect tweets about the situation", type: "kalahantarita" },
-        { text: "Share coded Instagram captions about loyalty", type: "khandita" },
-        { text: "Hope for reconciliation while updating dating apps", type: "vipralabdha" },
-        { text: "Focus on work while processing feelings", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "Your partner's going abroad for work - how do you handle it?",
-      options: [
-        { text: "Research student visas and job opportunities there", type: "abhisarika" },
-        { text: "Buy long-distance relationship gadgets online", type: "vasakasajja" },
-        { text: "Obsess over time zone difference apps", type: "virahotkanthita" },
-        { text: "Maintain your social life while scheduling video calls", type: "swadhinapatika" },
-        { text: "Create drama about their new Instagram followers", type: "kalahantarita" },
-        { text: "Track their location sharing constantly", type: "khandita" },
-        { text: "Overthink every new person in their social media", type: "vipralabdha" },
-        { text: "Set up regular virtual date nights", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "Before a big date, what's your preparation style?",
-      options: [
-        { text: "Plan multiple Instagrammable locations", type: "abhisarika" },
-        { text: "Do complete hair, nails, and outfit coordination", type: "vasakasajja" },
-        { text: "Try on everything in your wardrobe while panicking", type: "virahotkanthita" },
-        { text: "Choose a reliable outfit you feel confident in", type: "swadhinapatika" },
-        { text: "Change the meeting spot last minute", type: "kalahantarita" },
-        { text: "Get ready but keep a backup cancellation excuse", type: "khandita" },
-        { text: "Research the entire menu and location beforehand", type: "vipralabdha" },
-        { text: "Keep it simple but presentable", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "When someone ghosts you, what's your immediate reaction?",
-      options: [
-        { text: "Create opportunities to run into them", type: "abhisarika" },
-        { text: "Post your best life on social media", type: "vasakasajja" },
-        { text: "Keep checking if they've blocked you", type: "virahotkanthita" },
-        { text: "Continue living your best life unbothered", type: "swadhinapatika" },
-        { text: "Remove them from everywhere except one app", type: "kalahantarita" },
-        { text: "Share subtle posts about loyalty and respect", type: "khandita" },
-        { text: "Hope they'll explain while fearing the worst", type: "vipralabdha" },
-        { text: "Accept it and mute their social media", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "During relationship conflicts, how do you typically behave?",
-      options: [
-        { text: "Send a 'can we talk?' text immediately", type: "abhisarika" },
-        { text: "Create the perfect setting for discussion", type: "vasakasajja" },
-        { text: "Send long voice notes explaining feelings", type: "virahotkanthita" },
-        { text: "Take space while staying active online", type: "swadhinapatika" },
-        { text: "Tweet indirect messages about relationships", type: "kalahantarita" },
-        { text: "Screenshot evidence of their behavior", type: "khandita" },
-        { text: "Wait anxiously for them to reach out", type: "vipralabdha" },
-        { text: "Process quietly while maintaining routine", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "In a long-distance situation, what's your approach?",
-      options: [
-        { text: "Plan surprise visits with their friends' help", type: "abhisarika" },
-        { text: "Send care packages and virtual gifts", type: "vasakasajja" },
-        { text: "Spend hours on video calls daily", type: "virahotkanthita" },
-        { text: "Balance personal life with regular check-ins", type: "swadhinapatika" },
-        { text: "Question every new person they mention", type: "kalahantarita" },
-        { text: "Double-check their social media activity", type: "khandita" },
-        { text: "Always anticipate cancelled calls", type: "vipralabdha" },
-        { text: "Maintain regular but realistic contact", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "After a breakup, what's your usual coping method?",
-      options: [
-        { text: "Try to orchestrate 'random' meetings", type: "abhisarika" },
-        { text: "Start a complete lifestyle transformation", type: "vasakasajja" },
-        { text: "Create TikToks with sad relationship quotes", type: "virahotkanthita" },
-        { text: "Focus on your glow-up journey", type: "swadhinapatika" },
-        { text: "Block/unblock them periodically", type: "kalahantarita" },
-        { text: "Document the relationship timeline", type: "khandita" },
-        { text: "Check mutual friends' stories for updates", type: "vipralabdha" },
-        { text: "Immerse yourself in work or studies", type: "proshitapatika" }
-      ]
-    },
-    {
-      text: "How do you express your feelings for someone you care about?",
-      options: [
-        { text: "Send that risky but honest text", type: "abhisarika" },
-        { text: "Share specially curated Spotify playlists", type: "vasakasajja" },
-        { text: "Write lengthy emotional messages", type: "virahotkanthita" },
-        { text: "Show care through actions while staying cool", type: "swadhinapatika" },
-        { text: "Alternate between overwhelming love and distance", type: "kalahantarita" },
-        { text: "Express feelings guardedly through music", type: "khandita" },
-        { text: "Share hopeful but cautious messages", type: "vipralabdha" },
-        { text: "Show care through consistent, small gestures", type: "proshitapatika" }
-      ]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ashtanayika Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-  ],
-  results: {
-    abhisarika: {
-      title: "The Wild Onion",
-      description: "Unpredictable vibes, grows wherever it wants, impossible to pin down, pops up in unexpected places, struggles with commitment.",
-      details: "You are channeling the energy of Abhaysarika! Love is an adventure, and you’re here for it! The Abhisarika Nayika, a total icon of bold romance and thrills, inspires you to take risks for love and makes the fires of your passion burn brighter. Sneaking out late to meet your crush might feel modern, but this vibe has ancient roots. Back in the day, this impatient Risk taker braved stormy nights, wild forests, and even mythical creatures—all for love. She doesn't play the waiting game. Nah! Today’s version? Navigating unpredictable plans, last-minute meetups, and emotionally unavailable situationships. Just like her, you’re adventurous and determined, ready to face the wild side of love. But don’t forget your kicks (and your boundaries!)—because adventure often comes with risks."
-    },
-    vasakasajja: {
-      title: "The Layer Lord Onion",
-      description: "Complex personality, keeps you guessing with new sides of themselves, hard to get to their core, mysterious past, takes forever to open up.",
-      details: "You are channeling the energy of Vasakasajja! Want to make a great impression when he comes over? Tidy up! Declutter, clean, and set the vibe. Think candles, soft lighting, and a hint of a soothing scent. If you're really aiming for perfection (and a little extra luck), consider the old wives' tale: chatting with a crow on your balcony is said to bring back a lover. It couldn't hurt, right? And anyways, who’s judging? Channel your Vasakasajja energy—the vibe of longing, desire, and authentic emotional expression. It’s all about embracing the layers of connection and intrigue. Sometimes, peeling back those layers is what makes the journey so worth it!"
-    },
-    virahotkanthita: {
-      title: "The Tear-Jerker Onion",
-      description: "Makes you cry more than they make you laugh, drains your emotional battery, thrives on drama, masters manipulation like it is their side hustle.",
-      details: "You are channeling the energy of Virahotkanthita! The anxiety builds, spiraling into a wave of overthinking. You are channeling serious Utka Nayika vibes - a soul who aches for their absent lover with an intensity only the cosmos can understand. Rather than jumping to conclusions, she devotes all her anxious energy to waiting. Instead of raging or obsessively refreshing your phone, the Utka Nayika teaches us to sit with the longing (as painful as it is) and turn that energy inward. She confides her heartbreak to the stars and the moon, dreaming of the day her love will return. Romantic? Definitely. Relatable? Oh yeah."
-    },
-    swadhinapatika: {
-      title: "The Sautéed Onion",
-      description: "Master of smooth-talking, sweet and charming on the outside but hard to pin down, feels polished and put-together but still keeps it real.",
-      details: "You are channeling the energy of Swadhinapatika! Picture this: a life where you are treated like royalty. Rose petals on your path, endless cuddles, and yes, those Gold shimmers and sparkling diamonds you’ve been eyeing. He hangs on to every word you say, making you feel like the center of his universe. Sounds too good to be true? Not if you’re channeling the Svadhinapatika energy. As you would say, 'Keep calm cause it’s me espresso.' But seriously, Is it even love if you don’t have their whole heart? You set the bar high—expecting unwavering attention, thoughtful gestures (yes, nail-painting included), and a steady flow of affection. Your mantra? Total devotion is the key to unlocking world of happiness. Bring me some flowers, and I will turn your life into a Garden. You don’t need a magic wand to live the dream—you just need to be the amazing person you are and know you deserve that star treatment. Here’s the secret sauce: the more you put in, the more you get back. And if you want the royal vibes to last forever, don’t forget to treat him like the king he is too!"
-    },
-    kalahantarita: {
-      title: "The Toxic Onion",
-      description: "Burns your eyes and soul, leaves a bitter taste, creates emotional inflammation, spreads negativity, difficult to deal and digest.",
-      details: "You are channeling the energy of Kalahantarita! Ever felt emotionally drained and full of self-doubt because of your partner’s constant negativity? That’s the Kalahantarita energy—where emotional shifts and hidden underlying fears push you toward self-reflection and finding your own agency. After a fight, if you are vibing the energy of Abhisandhita or Kalahanatarita Nayika; here’s some advice : don’t get stuck in the blame game. Disagreements happen in every relationship, but once you’ve expressed your feelings, it’s usually best to accept an apology (and give one yourself). Unless, of course, you’re planning to shut it all down—just be sure you won’t regret it later, like our Nayika did. This is for the 'break-up first, apologize later' crew who end up thinking, 'Why couldn’t I just stay calm?' Passionate and quick-tempered, you might thrive on dramatic make-ups—but the line between playful and painful can blur real fast. If your partner’s vibe screams drama and toxicity, time to set boundaries, reclaim your power, and decide if this onion is worth the tears!"
-    },
-    khandita: {
-      title: "The Raw Onion",
-      description: "Emotional overload, way too much to deal with in one go, needs time to sort through, big energy, personality that takes up space.",
-      details: "You are channeling the energy of Khandita! You don’t stay silent. The Khandita Nayika, the ultimate queen of confrontation, says it’s time to let him have it. You speak your truth, unapologetically. You’ve done nothing wrong, so why hold back? Forget the 'Keep Calm' act—this is your moment to unleash all the fury on a cheating scoundrel. And if he thought he could get away with it? Think again. You don’t just call him out—You wipe him out. You’ll ghost him on seen, block him, and maybe turn his own family against him. All while looking absolutely stunning and sexy AF, of course. You are a Raging lover, literally with Revenge glow-up who deals with emotional turmoil, reactions, and behaviors, often coping with your own emotional state. The intense and overwhelming nature of your partner, who needs processing, aligns with the Raw Onion."
-    },
-    vipralabdha: {
-      title: "The Pickled Onion",
-      description: "Emotionally pickled - holding on to past drama, carrying around old relationship baggage, stuck with trauma responses that will not fade.",
-      details: "You are channeling the energy of Vipralabdha! You’ve been left on read—no breakup chat, just total radio silence. You’ve been putting in all the effort: texting him on WhatsApp, sliding into his DMs (the Nayika could afford to send a human messenger) asking him to come and meet you. You even went all out, dressing up for a potential meet that never happened. Meanwhile, he pulls a Houdini on you, vanishing from your notifications like it’s no big deal. Ouch. We get it, the 'Damsel in distress or Vipralabdha Nayika' inside you is ready to go full drama meltdown—rip your clothes, throw your phone, and toss your expensive overpriced lipstick. But hey, pause for a sec, there's a better way. This is your cue to drop the date-night dress and level up with some self-care. Seriously, he’s not worth that emotional rollercoaster. Instead of staying stuck wondering, 'Should I wait for him to reach out?' channel your inner queen. Forget about why he bailed and start embracing the power of moving on. No more self-inflicted drama. We’ve got better things to do than stress over someone who’s not worth it."
-    },
-    proshitapatika: {
-      title: "The Powdered Onion",
-      description: "Scattered personality, sprinkles attention randomly, present everywhere but nowhere, lacks substance, artificial depth.",
-      details: "You are channeling the energy of Proshitapatika! When you’re finally ready to let go of a relationship, the Proshitapatika Nayika archetype is here to remind you to lean on your inner strength and your best friend(s). This 'Tere bina beswaadi ratiyaan' heroine embodies passionate longing. 'How can I keep calm? It's been 253 days, 16 hours, 54 minutes, and 45 seconds.' The Proshitapatika Nayika is in mourning- not for a lost life, but for lost connection. Her lover hasn't died, just moved on. But when love is this intense, everything feels unbearable. She's dramatically stoic, constantly worrying: How can she be sure they're okay without her care ?? She spends her days reading through their first anniversary chats for the 461st time, texts like, 'Khaana khaaya babu’?” But here’s the deal: It’s time to channel your inner queen, put your crown back on and have fun with your BFF. Learn to say 'Thanks for the ride but no thanks !.' You know how to handle this grief, put faith in the destiny, and reflect on the good times because everything happens for a reason, Right ? As for your partner? Their scattered attention and lack of consistency are straight-up Powdered Onion vibes—sprinkling affection here and there but never quite showing up."
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
     }
-  }
-
-};
-
-const AshtanayikaQuiz = () => {
-  const [currentState, setCurrentState] = useState('intro');
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [questions, setQuestions] = useState([]);
-  const [scores, setScores] = useState(null);
-  const [dominantType, setDominantType] = useState(null);
-
-  useEffect(() => {
-    const shuffledQuestions = [...quizData.questions].sort(() => Math.random() - 0.5);
-    setQuestions(shuffledQuestions);
-  }, []);
-
-  const startQuiz = () => {
-    setCurrentState('quiz');
-    setCurrentQuestionIndex(0);
-    setAnswers({});
-  };
-
-  const selectAnswer = (type) => {
-    setAnswers(prev => ({
-      ...prev,
-      [currentQuestionIndex]: type
-    }));
-
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      calculateResults();
+    .card-header {
+      background: #f3f4f6;
+      padding: 16px;
+      border-bottom: 1px solid #e5e7eb;
     }
-  };
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4a5568;
+    }
+    .card-content {
+      padding: 24px;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .space-y-4 > *:not(:last-child),
+    .space-y-6 > *:not(:last-child),
+    .space-y-3 > *:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+    .mt-4 {
+      margin-top: 1rem;
+    }
+    .bg-purple-700 {
+      background-color: #6b46c1;
+    }
+    .hover\:bg-purple-900:hover {
+      background-color: #5a3f97;
+    }
+    .text-3xl {
+      font-size: 1.875rem;
+    }
+    .font-bold {
+      font-weight: bold;
+    }
+    .text-purple-900 {
+      color: #5a3f97;
+    }
+    .text-gray-600 {
+      color: #718096;
+    }
+    .w-full {
+      width: 100%;
+    }
+    .text-left {
+      text-align: left;
+    }
+    .justify-start {
+      justify-content: flex-start;
+    }
+    .h-auto {
+      height: auto;
+    }
+    .py-3 {
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+    .px-4 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .bg-white {
+      background-color: #ffffff;
+    }
+    .hover\:bg-purple-50:hover {
+      background-color: #f5f3ff;
+    }
+    .text-gray-800 {
+      color: #2d3748;
+    }
+    .border-2 {
+      border-width: 2px;
+    }
+    .border-gray-200 {
+      border-color: #edf2f7;
+    }
+    .hover\:border-purple-500:hover {
+      border-color: #9f7aea;
+    }
+    .text-2xl {
+      font-size: 1.5rem;
+    }
+    .h-64 {
+      height: 16rem;
+    }
+    .mt-6 {
+      margin-top: 1.5rem;
+    }
+    .text-xl {
+      font-size: 1.25rem;
+    }
+    .font-semibold {
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-  const calculateResults = () => {
-    const newScores = Object.values(answers).reduce((acc, type) => {
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {});
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.js"></script>
+  <script>
+    const { useState, useEffect } = React;
+    const { Card, CardContent, CardHeader, CardTitle } = {
+      Card: ({ className, children }) => <div className={`card ${className}`}>{children}</div>,
+      CardContent: ({ children }) => <div className="card-content">{children}</div>,
+      CardHeader: ({ children }) => <div className="card-header">{children}</div>,
+      CardTitle: ({ className, children }) => <div className={`card-title ${className}`}>{children}</div>,
+    };
+    const Button = ({ className, variant, children, onClick }) => (
+      <button className={`${className} ${variant}`} onClick={onClick}>
+        {children}
+      </button>
+    );
+    const Progress = ({ value }) => (
+      <div className="progress">
+        <div className="progress-bar" style={{ width: `${value}%` }}></div>
+      </div>
+    );
+    const { PieChart, Pie, Cell, ResponsiveContainer, Legend } = Recharts;
 
-    Object.keys(newScores).forEach(type => {
-      newScores[type] = (newScores[type] / questions.length) * 100;
-    });
+    const COLORS = {
+      abhisarika: '#FF8042',
+      vasakasajja: '#0088FE',
+      virahotkanthita: '#00C49F',
+      swadhinapatika: '#FFBB28',
+      kalahantarita: '#FF6B6B',
+      khandita: '#4ECDC4',
+      vipralabdha: '#45B7D1',
+      proshitapatika: '#96CEB4'
+    };
 
-    const dominant = Object.entries(newScores).reduce((a, b) =>
-      newScores[a[0]] > newScores[b[0]] ? a : b
-    )[0];
+    const quizData = {
+      questions: [
+        {
+          text: "Your crush hasn't replied to your text in hours. What's your next move?",
+          options: [
+            { text: "Accidentally bump into them at their usual cafe", type: "abhisarika" },
+            { text: "Post aesthetic Instagram stories while waiting", type: "vasakasajja" },
+            { text: "Keep checking their online status every few minutes", type: "virahotkanthita" },
+            { text: "Continue with your day, they will reply when ready", type: "swadhinapatika" },
+            { text: "Leave them on read but watch all their stories", type: "kalahantarita" },
+            { text: "Share screenshots with friends group chat for advice", type: "khandita" },
+            { text: "Type and delete multiple messages without sending", type: "vipralabdha" },
+            { text: "Accept they are busy and focus on work", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "When you really like someone, how do you usually show it?",
+          options: [
+            { text: "Send that perfectly timed witty DM", type: "abhisarika" },
+            { text: "Curate your social media to catch their attention", type: "vasakasajja" },
+            { text: "Create a private Instagram close friends story just for them", type: "virahotkanthita" },
+            { text: "Keep it casual while dropping subtle hints", type: "swadhinapatika" },
+            { text: "Switch between intense attention and complete silence", type: "kalahantarita" },
+            { text: "Watch their activity from a distance", type: "khandita" },
+            { text: "React to their stories but prepare for no response", type: "vipralabdha" },
+            { text: "Maintain minimal but meaningful online presence", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "During a relationship rough patch, what's your typical response?",
+          options: [
+            { text: "Book a surprise dinner reservation to talk", type: "abhisarika" },
+            { text: "Set up the perfect Netflix and talk evening", type: "vasakasajja" },
+            { text: "Make an emotional Spotify playlist on repeat", type: "virahotkanthita" },
+            { text: "Give space while staying visible on social media", type: "swadhinapatika" },
+            { text: "Post indirect tweets about the situation", type: "kalahantarita" },
+            { text: "Share coded Instagram captions about loyalty", type: "khandita" },
+            { text: "Hope for reconciliation while updating dating apps", type: "vipralabdha" },
+            { text: "Focus on work while processing feelings", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "Your partner's going abroad for work - how do you handle it?",
+          options: [
+            { text: "Research student visas and job opportunities there", type: "abhisarika" },
+            { text: "Buy long-distance relationship gadgets online", type: "vasakasajja" },
+            { text: "Obsess over time zone difference apps", type: "virahotkanthita" },
+            { text: "Maintain your social life while scheduling video calls", type: "swadhinapatika" },
+            { text: "Create drama about their new Instagram followers", type: "kalahantarita" },
+            { text: "Track their location sharing constantly", type: "khandita" },
+            { text: "Overthink every new person in their social media", type: "vipralabdha" },
+            { text: "Set up regular virtual date nights", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "Before a big date, what's your preparation style?",
+          options: [
+            { text: "Plan multiple Instagrammable locations", type: "abhisarika" },
+            { text: "Do complete hair, nails, and outfit coordination", type: "vasakasajja" },
+            { text: "Try on everything in your wardrobe while panicking", type: "virahotkanthita" },
+            { text: "Choose a reliable outfit you feel confident in", type: "swadhinapatika" },
+            { text: "Change the meeting spot last minute", type: "kalahantarita" },
+            { text: "Get ready but keep a backup cancellation excuse", type: "khandita" },
+            { text: "Research the entire menu and location beforehand", type: "vipralabdha" },
+            { text: "Keep it simple but presentable", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "When someone ghosts you, what's your immediate reaction?",
+          options: [
+            { text: "Create opportunities to run into them", type: "abhisarika" },
+            { text: "Post your best life on social media", type: "vasakasajja" },
+            { text: "Keep checking if they've blocked you", type: "virahotkanthita" },
+            { text: "Continue living your best life unbothered", type: "swadhinapatika" },
+            { text: "Remove them from everywhere except one app", type: "kalahantarita" },
+            { text: "Share subtle posts about loyalty and respect", type: "khandita" },
+            { text: "Hope they'll explain while fearing the worst", type: "vipralabdha" },
+            { text: "Accept it and mute their social media", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "During relationship conflicts, how do you typically behave?",
+          options: [
+            { text: "Send a 'can we talk?' text immediately", type: "abhisarika" },
+            { text: "Create the perfect setting for discussion", type: "vasakasajja" },
+            { text: "Send long voice notes explaining feelings", type: "virahotkanthita" },
+            { text: "Take space while staying active online", type: "swadhinapatika" },
+            { text: "Tweet indirect messages about relationships", type: "kalahantarita" },
+            { text: "Screenshot evidence of their behavior", type: "khandita" },
+            { text: "Wait anxiously for them to reach out", type: "vipralabdha" },
+            { text: "Process quietly while maintaining routine", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "In a long-distance situation, what's your approach?",
+          options: [
+            { text: "Plan surprise visits with their friends' help", type: "abhisarika" },
+            { text: "Send care packages and virtual gifts", type: "vasakasajja" },
+            { text: "Spend hours on video calls daily", type: "virahotkanthita" },
+            { text: "Balance personal life with regular check-ins", type: "swadhinapatika" },
+            { text: "Question every new person they mention", type: "kalahantarita" },
+            { text: "Double-check their social media activity", type: "khandita" },
+            { text: "Always anticipate cancelled calls", type: "vipralabdha" },
+            { text: "Maintain regular but realistic contact", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "After a breakup, what's your usual coping method?",
+          options: [
+            { text: "Try to orchestrate 'random' meetings", type: "abhisarika" },
+            { text: "Start a complete lifestyle transformation", type: "vasakasajja" },
+            { text: "Create TikToks with sad relationship quotes", type: "virahotkanthita" },
+            { text: "Focus on your glow-up journey", type: "swadhinapatika" },
+            { text: "Block/unblock them periodically", type: "kalahantarita" },
+            { text: "Document the relationship timeline", type: "khandita" },
+            { text: "Check mutual friends' stories for updates", type: "vipralabdha" },
+            { text: "Immerse yourself in work or studies", type: "proshitapatika" }
+          ]
+        },
+        {
+          text: "How do you express your feelings for someone you care about?",
+          options: [
+            { text: "Send that risky but honest text", type: "abhisarika" },
+            { text: "Share specially curated Spotify playlists", type: "vasakasajja" },
+            { text: "Write lengthy emotional messages", type: "virahotkanthita" },
+            { text: "Show care through actions while staying cool", type: "swadhinapatika" },
+            { text: "Alternate between overwhelming love and distance", type: "kalahantarita" },
+            { text: "Express feelings guardedly through music", type: "khandita" },
+            { text: "Share hopeful but cautious messages", type: "vipralabdha" },
+            { text: "Show care through consistent, small gestures", type: "proshitapatika" }
+          ]
+        }
+      ],
+      results: {
+        abhisarika: {
+          title: "The Wild Onion",
+          description: "Unpredictable vibes, grows wherever it wants, impossible to pin down, pops up in unexpected places, struggles with commitment.",
+          details: "You are channeling the energy of Abhaysarika! Love is an adventure, and you’re here for it! The Abhisarika Nayika, a total icon of bold romance and thrills, inspires you to take risks for love and makes the fires of your passion burn brighter. Sneaking out late to meet your crush might feel modern, but this vibe has ancient roots. Back in the day, this impatient Risk taker braved stormy nights, wild forests, and even mythical creatures—all for love. She doesn't play the waiting game. Nah! Today’s version? Navigating unpredictable plans, last-minute meetups, and emotionally unavailable situationships. Just like her, you’re adventurous and determined, ready to face the wild side of love. But don’t forget your kicks (and your boundaries!)—because adventure often comes with risks."
+        },
+        vasakasajja: {
+          title: "The Layer Lord Onion",
+          description: "Complex personality, keeps you guessing with new sides of themselves, hard to get to their core, mysterious past, takes forever to open up.",
+          details: "You are channeling the energy of Vasakasajja! Want to make a great impression when he comes over? Tidy up! Declutter, clean, and set the vibe. Think candles, soft lighting, and a hint of a soothing scent. If you're really aiming for perfection (and a little extra luck), consider the old wives' tale: chatting with a crow on your balcony is said to bring back a lover. It couldn't hurt, right? And anyways, who’s judging? Channel your Vasakasajja energy—the vibe of longing, desire, and authentic emotional expression. It’s all about embracing the layers of connection and intrigue. Sometimes, peeling back those layers is what makes the journey so worth it!"
+        },
+        virahotkanthita: {
+          title: "The Tear-Jerker Onion",
+          description: "Makes you cry more than they make you laugh, drains your emotional battery, thrives on drama, masters manipulation like it is their side hustle.",
+          details: "You are channeling the energy of Virahotkanthita! The anxiety builds, spiraling into a wave of overthinking. You are channeling serious Utka Nayika vibes - a soul who aches for their absent lover with an intensity only the cosmos can understand. Rather than jumping to conclusions, she devotes all her anxious energy to waiting. Instead of raging or obsessively refreshing your phone, the Utka Nayika teaches us to sit with the longing (as painful as it is) and turn that energy inward. She confides her heartbreak to the stars and the moon, dreaming of the day her love will return. Romantic? Definitely. Relatable? Oh yeah."
+        },
+        swadhinapatika: {
+          title: "The Sautéed Onion",
+          description: "Master of smooth-talking, sweet and charming on the outside but hard to pin down, feels polished and put-together but still keeps it real.",
+          details: "You are channeling the energy of Swadhinapatika! Picture this: a life where you are treated like royalty. Rose petals on your path, endless cuddles, and yes, those Gold shimmers and sparkling diamonds you’ve been eyeing. He hangs on to every word you say, making you feel like the center of his universe. Sounds too good to be true? Not if you’re channeling the Svadhinapatika energy. As you would say, 'Keep calm cause it’s me espresso.' But seriously, Is it even love if you don’t have their whole heart? You set the bar high—expecting unwavering attention, thoughtful gestures (yes, nail-painting included), and a steady flow of affection. Your mantra? Total devotion is the key to unlocking world of happiness. Bring me some flowers, and I will turn your life into a Garden. You don’t need a magic wand to live the dream—you just need to be the amazing person you are and know you deserve that star treatment. Here’s the secret sauce: the more you put in, the more you get back. And if you want the royal vibes to last forever, don’t forget to treat him like the king he is too!"
+        },
+        kalahantarita: {
+          title: "The Toxic Onion",
+          description: "Burns your eyes and soul, leaves a bitter taste, creates emotional inflammation, spreads negativity, difficult to deal and digest.",
+          details: "You are channeling the energy of Kalahantarita! Ever felt emotionally drained and full of self-doubt because of your partner’s constant negativity? That’s the Kalahantarita energy—where emotional shifts and hidden underlying fears push you toward self-reflection and finding your own agency. After a fight, if you are vibing the energy of Abhisandhita or Kalahanatarita Nayika; here’s some advice : don’t get stuck in the blame game. Disagreements happen in every relationship, but once you’ve expressed your feelings, it’s usually best to accept an apology (and give one yourself). Unless, of course, you’re planning to shut it all down—just be sure you won’t regret it later, like our Nayika did. This is for the 'break-up first, apologize later' crew who end up thinking, 'Why couldn’t I just stay calm?' Passionate and quick-tempered, you might thrive on dramatic make-ups—but the line between playful and painful can blur real fast. If your partner’s vibe screams drama and toxicity, time to set boundaries, reclaim your power, and decide if this onion is worth the tears!"
+        },
+        khandita: {
+          title: "The Raw Onion",
+          description: "Emotional overload, way too much to deal with in one go, needs time to sort through, big energy, personality that takes up space.",
+          details: "You are channeling the energy of Khandita! You don’t stay silent. The Khandita Nayika, the ultimate queen of confrontation, says it’s time to let him have it. You speak your truth, unapologetically. You’ve done nothing wrong, so why hold back? Forget the 'Keep Calm' act—this is your moment to unleash all the fury on a cheating scoundrel. And if he thought he could get away with it? Think again. You don’t just call him out—You wipe him out. You’ll ghost him on seen, block him, and maybe turn his own family against him. All while looking absolutely stunning and sexy AF, of course. You are a Raging lover, literally with Revenge glow-up who deals with emotional turmoil, reactions, and behaviors, often coping with your own emotional state. The intense and overwhelming nature of your partner, who needs processing, aligns with the Raw Onion."
+        },
+        vipralabdha: {
+          title: "The Pickled Onion",
+          description: "Emotionally pickled - holding on to past drama, carrying around old relationship baggage, stuck with trauma responses that will not fade.",
+          details: "You are channeling the energy of Vipralabdha! You’ve been left on read—no breakup chat, just total radio silence. You’ve been putting in all the effort: texting him on WhatsApp, sliding into his DMs (the Nayika could afford to send a human messenger) asking him to come and meet you. You even went all out, dressing up for a potential meet that never happened. Meanwhile, he pulls a Houdini on you, vanishing from your notifications like it’s no big deal. Ouch. We get it, the 'Damsel in distress or Vipralabdha Nayika' inside you is ready to go full drama meltdown—rip your clothes, throw your phone, and toss your expensive overpriced lipstick. But hey, pause for a sec, there's a better way. This is your cue to drop the date-night dress and level up with some self-care. Seriously, he’s not worth that emotional rollercoaster. Instead of staying stuck wondering, 'Should I wait for him to reach out?' channel your inner queen. Forget about why he bailed and start embracing the power of moving on. No more self-inflicted drama. We’ve got better things to do than stress over someone who’s not worth it."
+        },
+        proshitapatika: {
+          title: "The Powdered Onion",
+          description: "Scattered personality, sprinkles attention randomly, present everywhere but nowhere, lacks substance, artificial depth.",
+          details: "You are channeling the energy of Proshitapatika! When you’re finally ready to let go of a relationship, the Proshitapatika Nayika archetype is here to remind you to lean on your inner strength and your best friend(s). This 'Tere bina beswaadi ratiyaan' heroine embodies passionate longing. 'How can I keep calm? It's been 253 days, 16 hours, 54 minutes, and 45 seconds.' The Proshitapatika Nayika is in mourning- not for a lost life, but for lost connection. Her lover hasn't died, just moved on. But when love is this intense, everything feels unbearable. She's dramatically stoic, constantly worrying: How can she be sure they're okay without her care ?? She spends her days reading through their first anniversary chats for the 461st time, texts like, 'Khaana khaaya babu’?” But here’s the deal: It’s time to channel your inner queen, put your crown back on and have fun with your BFF. Learn to say 'Thanks for the ride but no thanks !.' You know how to handle this grief, put faith in the destiny, and reflect on the good times because everything happens for a reason, Right ? As for your partner? Their scattered attention and lack of consistency are straight-up Powdered Onion vibes—sprinkling affection here and there but never quite showing up."
+        }
+      }
+    };
 
-    setScores(newScores);
-    setDominantType(dominant);
-    setCurrentState('result');
-  };
+    const AshtanayikaQuiz = () => {
+      const [currentState, setCurrentState] = useState('intro');
+      const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const [questions, setQuestions] = useState([]);
+      const [scores, setScores] = useState(null);
+      const [dominantType, setDominantType] = useState(null);
 
-  const renderIntro = () => (
-    <div className="text-center space-y-4">
-      <h1 className="text-3xl font-bold text-purple-900">Are you dating an Onion?</h1>
-      <p className="text-gray-600">Dating wisdom from the Original Gangster Love Experts – for they can spot a red flag from miles away.</p>
-      <p className="text-gray-600">किं तव जीवनसंबन्धः कन्दकसदृशः अस्ति—जटिलः, तीव्रः, यदा-कदा अश्रुजनकः च?</p>
-      <Button
-        className="mt-4 bg-purple-700 hover:bg-purple-900"
-        onClick={startQuiz}
-      >
-        Start Quiz
-      </Button>
-    </div>
-  );
+      useEffect(() => {
+        const shuffledQuestions = [...quizData.questions].sort(() => Math.random() - 0.5);
+        setQuestions(shuffledQuestions);
+      }, []);
 
-  const renderQuestion = () => {
-    const question = questions[currentQuestionIndex];
-    if (!question) return null;
+      const startQuiz = () => {
+        setCurrentState('quiz');
+        setCurrentQuestionIndex(0);
+        setAnswers({});
+      };
 
-    return (
-      <div className="space-y-6">
-        <Progress value={(currentQuestionIndex + 1) / questions.length * 100} />
-        <h2 className="text-xl font-semibold text-purple-900">{question.text}</h2>
-        <div className="space-y-3">
-          {question.options.map((option, index) => (
+      const selectAnswer = (type) => {
+        setAnswers(prev => ({
+          ...prev,
+          [currentQuestionIndex]: type
+        }));
+
+        if (currentQuestionIndex < questions.length - 1) {
+          setCurrentQuestionIndex(prev => prev + 1);
+        } else {
+          calculateResults();
+        }
+      };
+
+      const calculateResults = () => {
+        const newScores = Object.values(answers).reduce((acc, type) => {
+          acc[type] = (acc[type] || 0) + 1;
+          return acc;
+        }, {});
+
+        Object.keys(newScores).forEach(type => {
+          newScores[type] = (newScores[type] / questions.length) * 100;
+        });
+
+        const dominant = Object.entries(newScores).reduce((a, b) =>
+          newScores[a[0]] > newScores[b[0]] ? a : b
+        )[0];
+
+        setScores(newScores);
+        setDominantType(dominant);
+        setCurrentState('result');
+      };
+
+      const renderIntro = () => (
+        <div className="text-center space-y-4">
+          <h1 className="text-3xl font-bold text-purple-900">Are you dating an Onion?</h1>
+          <p className="text-gray-600">Dating wisdom from the Original Gangster Love Experts – for they can spot a red flag from miles away.</p>
+          <p className="text-gray-600">किं तव जीवनसंबन्धः कन्दकसदृशः अस्ति—जटिलः, तीव्रः, यदा-कदा अश्रुजनकः च?</p>
+          <Button
+            className="mt-4 bg-purple-700 hover:bg-purple-900"
+            onClick={startQuiz}
+          >
+            Start Quiz
+          </Button>
+        </div>
+      );
+
+      const renderQuestion = () => {
+        const question = questions[currentQuestionIndex];
+        if (!question) return null;
+
+        return (
+          <div className="space-y-6">
+            <Progress value={(currentQuestionIndex + 1) / questions.length * 100} />
+            <h2 className="text-xl font-semibold text-purple-900">{question.text}</h2>
+            <div className="space-y-3">
+              {question.options.map((option, index) => (
+                <Button
+                  key={index}
+                  className="w-full text-left justify-start h-auto py-3 px-4 bg-white hover:bg-purple-50 text-gray-800 border-2 border-gray-200 hover:border-purple-500"
+                  variant="outline"
+                  onClick={() => selectAnswer(option.type)}
+                >
+                  {option.text}
+                </Button>
+              ))}
+            </div>
+          </div>
+        );
+      };
+
+      const renderResults = () => {
+        if (!scores || !dominantType) return null;
+
+        const chartData = Object.entries(scores)
+          .map(([name, value]) => ({
+            name,
+            value: Math.round(value)
+          }))
+          .filter(item => item.value > 0);
+
+        const result = quizData.results[dominantType];
+
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-purple-900">You are Dating: {result.title}</h2>
+            <p className="text-gray-600">{result.description}</p>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    label={({name, value}) => `${name}: ${value}%`}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={index} fill={COLORS[entry.name]} />
+                    ))}
+                  </Pie>
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-6 space-y-4">
+              <h3 className="text-xl font-semibold text-purple-900">तव समा नायिका</h3>
+              <p className="text-gray-600">{result.details}</p>
+            </div>
             <Button
-              key={index}
-              className="w-full text-left justify-start h-auto py-3 px-4 bg-white hover:bg-purple-50 text-gray-800 border-2 border-gray-200 hover:border-purple-500"
-              variant="outline"
-              onClick={() => selectAnswer(option.type)}
+              className="mt-4 bg-purple-700 hover:bg-purple-900"
+              onClick={startQuiz}
             >
-              {option.text}
+              Take Quiz Again
             </Button>
-          ))}
-        </div>
-      </div>
-    );
-  };
+          </div>
+        );
+      };
 
-  const renderResults = () => {
-    if (!scores || !dominantType) return null;
+      return (
+        <Card className="w-full max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="text-center text-purple-900">
+              अष्टनायिकासु एका प्रश्नं कुर्वन्ति
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {currentState === 'intro' && renderIntro()}
+            {currentState === 'quiz' && renderQuestion()}
+            {currentState === 'result' && renderResults()}
+          </CardContent>
+        </Card>
+      );
+    };
 
-    const chartData = Object.entries(scores)
-      .map(([name, value]) => ({
-        name,
-        value: Math.round(value)
-      }))
-      .filter(item => item.value > 0);
-
-    const result = quizData.results[dominantType];
-
-    return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-purple-900">You are Dating: {result.title}</h2>
-        <p className="text-gray-600">{result.description}</p>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={chartData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label={({name, value}) => `${name}: ${value}%`}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={index} fill={COLORS[entry.name]} />
-                ))}
-              </Pie>
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="mt-6 space-y-4">
-          <h3 className="text-xl font-semibold text-purple-900">तव समा नायिका</h3>
-          <p className="text-gray-600">{result.details}</p>
-        </div>
-        <Button
-          className="mt-4 bg-purple-700 hover:bg-purple-900"
-          onClick={startQuiz}
-        >
-          Take Quiz Again
-        </Button>
-      </div>
-    );
-  };
-
-  return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-center text-purple-900">
-         अष्टनायिकासु एका प्रश्नं कुर्वन्ति
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {currentState === 'intro' && renderIntro()}
-        {currentState === 'quiz' && renderQuestion()}
-        {currentState === 'result' && renderResults()}
-      </CardContent>
-    </Card>
-  );
-};
-
-export default AshtanayikaQuiz;
-
+    ReactDOM.render(<AshtanayikaQuiz />, document.getElementById('root'));
+  </script>
+</body>
+</html>
